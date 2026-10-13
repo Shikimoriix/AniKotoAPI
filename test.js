@@ -37,10 +37,14 @@ const tests = [
   { name: "Home", url: "/", check: (d) => d.results?.spotlights || d.results?.trending },
   { name: "Search", url: "/search?keyword=naruto", check: (d) => d.results?.data },
   { name: "Info", url: "/info?id=one-piece-odmau", check: (d) => d.results?.title },
+  { name: "Info External IDs", url: "/info?id=one-piece-odmau", check: (d) => d.results?.externalIds?.malId },
   { name: "Episodes", url: "/episodes/one-piece-odmau", check: (d) => d.results?.episodes },
+  { name: "Latest Episode", url: "/episodes/latest?slug=one-piece-odmau", check: (d) => d.results?.latest?.episode_no && d.results?.latest?.server_ids },
   { name: "Servers", url: "/servers?ids=1", check: (d) => d.results, optional: true },
   // Streaming
   { name: "Stream", url: "/watch?slug=one-piece-odmau&ep=1", check: (d) => d.results?.servers || d.results?.episodeNumber },
+  { name: "Embed Providers", url: "/stream/embeds?slug=one-piece-odmau&ep=1", check: (d) => d.results?.providers?.length > 0 },
+  { name: "Embed (direct MAL)", url: "/stream/embeds?mal=21&ep=1&provider=megavid", check: (d) => d.results?.providers?.[0]?.url?.includes("megavid.buzz") },
 
 
   // Discovery endpoints

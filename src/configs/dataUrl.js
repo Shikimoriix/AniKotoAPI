@@ -42,11 +42,12 @@ const BASE_URL = "https://anikototv.to";
  *   // Access alternative domains
  *   ALT_DOMAINS[0] // "https://anikoto.cz"
  */
+// Verified against the official domain hub: https://anikoto.site/#domains
 const ALT_DOMAINS = [
   "https://anikoto.cz",
   "https://anikoto.me",
   "https://anikoto.net",
-  "https://anikoto.se"
+  "https://anikototv.se"
 ];
 
 // ══════════════════════════════════════════════════════════════

@@ -164,6 +164,7 @@ const TTL = {
   schedule: 1800000,   // 30min — schedule changes daily
   genres: 3600000,     // 60min — genre list is static
   suggestions: 300000, // 5min  — suggestions update moderate
+  ids: 3600000,        // 60min — MAL/AniList IDs are stable per anime
   default: 300000      // 5min  — safe default for unknown endpoints
 };
 

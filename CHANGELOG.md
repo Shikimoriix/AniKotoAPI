@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.1] - 2026-10-13
+
+### Added
+- **Direct Embed Providers**: New `GET /api/stream/embeds` endpoint returning iframe-ready player URLs for **Megavid** (megavid.buzz), **AniXo** (anixo.buzz) and **MegaPlay** (megaplay.buzz) — bypasses Cloudflare entirely since playback happens in the provider's own iframe, no source-site AJAX scraping needed at watch time
+- **Provider Config**: New `src/configs/embedProviders.config.js` — provider registry with URL builders (patterns verified against aluukill/AniCult's provider registry)
+- **Embed Extractor**: New `src/extractors/embedProviders.extractor.js` — resolves MAL ID from the site's episode list (`data-mal`), looks up AniList ID via the public AniList GraphQL API (cached 60min), builds provider URLs
+- **Embed Controller**: New `src/controllers/embedProviders.controller.js` — supports `?slug=`, `?mal=`, `?anilist=` (direct IDs skip slug scraping entirely), `?ep=`, `?lang=sub|dub`, `?provider=` comma filter, with 400 errors for unknown providers
+- **IDs Cache TTL**: New `TTL.ids` (60min) for MAL/AniList ID mappings — these never change per anime
+- **OpenAPI**: Registered `/stream/embeds` in the spec
+- **Info External IDs**: `GET /api/info` responses now include `externalIds: { animeId, malId, anilistId }` — resolved server-side via the episode-list + AniList lookups (60min cache), best-effort (failed resolution returns nulls, never breaks the response); lets clients feed IDs straight into `/api/stream/embeds`
+- **Latest-Episode Checker**: New `GET /api/episodes/latest?slug=` endpoint (new `episodeLatest.controller.js`) — returns only `latest: { episode_no, title, id, server_ids, mal_id, ... }` plus `animeId`/`totalEpisodes`, built for bot polling (10min cache, registered before `/episodes/:id` so the literal path wins)
+- **Tests**: Added `Embed Providers`, `Embed (direct MAL)`, `Info External IDs` and `Latest Episode` cases to test.js
+
+### Fixed
+- **Spotlight Carousel Selectors (BREAKING drift)**: Source site redesigned the `#hotest` carousel — updated `homeInfo.extractor.js` and `spotlight.extractor.js` for the new markup (`swiper-slide` without `.item`, `a.btn.btn-primary` instead of `a.play`, `.cover img` instead of `.image div[style]`, `h2.ak-title` instead of `h2.title`, `.ak-desc` instead of `.desc`, type/date/rating packed into `.ak-detail span.it`). Old-layout selectors kept as fallbacks (dual-selector). Spotlight was returning 0 items before this fix; now returns 9.
+- **Spotlight Rating**: New layout packs rating into the `.ak-detail` list alongside year/date — numeric-with-decimal matching prevents the year (e.g. 2026) from being mistaken for the rating (e.g. 7.84)
+- **Diagnostic Sweep Fixes**: Full-repo deep scan caught stale counts — README endpoints badge, docs/index.md badge/table/tree/sample counts (38→39 endpoints, 28→29 scrapers/handlers), docs/endpoints.md sample `/stats` response, public/index.html animated stat counter, docs/architecture.md extractor count and Episode & Stream category now list `embedProviders` (39 reached at that sweep, then 40 with the info-ID and latest-episode additions)
+- **render.yaml**: Added missing trailing newline (EOF)
+
+### Changed
+- **Version**: Bumped to 2.5.1 (single release consolidating domain sync, embed providers, docs pass and diagnostic sweep)
+- **Mirror Domains Synced**: Verified all mirror domains against the official AniKoto domain hub (https://anikoto.site/#domains) — live check confirmed all 5 official domains return HTTP 200; replaced dead `anikoto.se` with official `anikototv.se` in `dataUrl.js` ALT_DOMAINS, `render.yaml` and README domain tables
+- **Documentation Style**: Full repo-style pass on embed modules — inline `NOTE`/`TIP` markers for cache-first lookups, MAL-ID dedup, failure-tolerant AniList resolution, direct-ID fast path, input sanitization, cache-key composition; corrected JSDoc examples to current AniList ID values
+- **Docs Sync**: `/api/stream/embeds` in docs/streaming.md (Direct Embed Providers section + TOC) and README streaming status table; project trees in README.md and docs/architecture.md list the new modules; `/episodes/latest` documented in docs/endpoints.md; all endpoint counts synced to 40 (README badge/highlights/checklist, landing-page metas and stat counter, docs/index.md badge/tables, docs/architecture.md controller counts, `/api/stats`); top-rankings `?sort=day|week|month` confirmed already supported — docs matched, no code change needed
+- **Dockerfile**: Base image `node:18-alpine` → `node:22-alpine` — Node 18 is EOL (Sept 2025); aligns with README's Node 20+ guidance and current LTS
+
+### Example
+```
+GET /api/stream/embeds?slug=one-piece-odmau&ep=1150
+GET /api/stream/embeds?mal=21&ep=1&lang=dub&provider=megavid,megaplay
+```
+
+### Verified
+- All 77 JS files pass `node --check`; all relative imports resolve
+- Official domains (all HTTP 200): `anikototv.to` (primary), `anikoto.cz`, `anikoto.me`, `anikoto.net`, `anikototv.se`; dead `anikoto.se` confirmed offline
+- All 3 embed provider URLs live-verified HTTP 200 (Megavid serves embed-only page by design)
+- Live smoke test 9/9 extractors passed; full API suite 38 passed / 0 failed / 2 optional skips (upstream AJAX blocks, documented)
+- No secrets tracked in git
+
 ## [2.4.1] - 2026-08-27
 
 ### Security

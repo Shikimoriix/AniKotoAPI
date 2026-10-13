@@ -17,6 +17,7 @@
  */
 
 import { extractAnimeInfo } from "../extractors/animeInfo.extractor.js";
+import { resolveExternalIds } from "../extractors/embedProviders.extractor.js";
 import { getCache, setCache, TTL } from "../helper/cache.helper.js";
 
 // ══════════════════════════════════════════════════════════════
@@ -53,6 +54,21 @@ const getAnimeInfo = async (req, res, next) => {
       return res.json({ success: true, results: cached });
     }
     const data = await extractAnimeInfo(animeSlug);
+
+    // NOTE: Enrich with MAL/AniList IDs (cached 60min inside resolveExternalIds)
+    // so clients can pass them straight to /api/stream/embeds. Best-effort —
+    // a failed ID lookup never breaks the info response itself
+    try {
+      const ext = await resolveExternalIds(animeSlug);
+      data.externalIds = {
+        animeId: ext.animeId || 0,
+        malId: ext.malId || null,
+        anilistId: ext.anilistId || null,
+      };
+    } catch {
+      data.externalIds = { animeId: 0, malId: null, anilistId: null };
+    }
+
     setCache(cacheKey, data, TTL.info);
     res.json({ success: true, results: data });
   } catch (error) {

@@ -7,7 +7,7 @@
 
 ![AniKotoAPI](https://img.shields.io/badge/AniKotoAPI-v2.4.1-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
-![Endpoints](https://img.shields.io/badge/Endpoints-38+-orange)
+![Endpoints](https://img.shields.io/badge/Endpoints-40+-orange)
 ![Node.js](https://img.shields.io/badge/Node.js-18+-brightgreen)
 
 > A fast, free REST API that scrapes anime data from **anikototv.to**.
@@ -70,9 +70,9 @@ That's it. No API keys required.
 
 | Feature | Description |
 |---|---|
-| **38+ Endpoints** | Full coverage of anime data, streaming, and discovery |
-| **28 HTML Scrapers** | Cheerio-based scrapers for robust data extraction |
-| **28 Route Handlers** | Organized controllers with clean separation of concerns |
+| **40+ Endpoints** | Full coverage of anime data, streaming, and discovery |
+| **29 HTML Scrapers** | Cheerio-based scrapers for robust data extraction |
+| **30 Route Handlers** | Organized controllers with clean separation of concerns |
 | **5 Mirror Domains** | Automatic failover across multiple source domains |
 | **LRU Cache** | Per-endpoint TTL caching for performance |
 | **Rate Limiting** | 100 requests per 15 minutes per IP |
@@ -194,12 +194,12 @@ AniKotoAPI/
 │   ├── info.js             # Anime info
 │   ├── search.js           # Search
 │   ├── stream.js           # Streaming
-│   └── ...                 # 38+ route handlers
+│   └── ...                 # 40 route handlers
 ├── scrapers/               # Cheerio HTML scrapers
 │   ├── home.js
 │   ├── info.js
 │   ├── search.js
-│   └── ...                 # 28 scrapers
+│   └── ...                 # 29 scrapers
 ├── utils/                  # Shared utilities
 │   ├── cache.js            # LRU cache with TTL
 │   ├── rateLimit.js        # IP-based rate limiter
@@ -218,8 +218,8 @@ AniKotoAPI/
 
 ### Key Design Patterns
 
-- **Scraping Layer**: 28 Cheerio-based scrapers parse HTML from anikototv.to, isolating page-specific logic from route handlers.
-- **Controller Layer**: 28 route handlers map HTTP requests to scraper calls, handle validation, and format responses.
+- **Scraping Layer**: 29 Cheerio-based scrapers parse HTML from anikototv.to, isolating page-specific logic from route handlers.
+- **Controller Layer**: 30 route handlers map HTTP requests to scraper calls, handle validation, and format responses.
 - **Cache Layer**: LRU cache with per-endpoint TTL reduces redundant scraping. Hot endpoints cache for 2–5 minutes; cold endpoints for 10+ minutes.
 - **Mirror Layer**: 5 source domains with automatic failover. If one domain is slow or down, requests transparently fall back to the next mirror.
 - **Rate Limiter**: Token bucket algorithm, 100 requests per 15-minute window per client IP.
@@ -350,7 +350,7 @@ All errors return JSON with a consistent structure:
 
 | File | Description |
 |------|-------------|
-| [endpoints.md](./endpoints.md) | Full API reference for all 38+ endpoints |
+| [endpoints.md](./endpoints.md) | Full API reference for all 40+ endpoints |
 | [streaming.md](./streaming.md) | Complete streaming workflow guide |
 | [examples.md](./examples.md) | Working code examples in cURL, JS, Python |
 | [architecture.md](./architecture.md) | Project structure and design patterns |

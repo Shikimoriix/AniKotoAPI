@@ -67,13 +67,13 @@
  *  │  │                         │                                     │  │
  *  │  │                         ▼                                     │  │
  *  │  │  ┌──────────────────────────────────────────────────────────┐ │  │
- *  │  │  │               CONTROLLER LAYER  (28 controllers)         │ │  │
+ *  │  │  │               CONTROLLER LAYER  (30 controllers)         │ │  │
  *  │  │  │  Validation · Parameter parsing · Response formatting    │ │  │
  *  │  │  └──────────────────────┬───────────────────────────────────┘ │  │
  *  │  │                         │                                     │  │
  *  │  │                         ▼                                     │  │
  *  │  │  ┌──────────────────────────────────────────────────────────┐ │  │
- *  │  │  │           EXTRACTOR / SCRAPER LAYER  (28 extractors)     │ │  │
+ *  │  │  │           EXTRACTOR / SCRAPER LAYER  (29 extractors)     │ │  │
  *  │  │  │  HTML fetching · Cheerio parsing · Data transformation   │ │  │
  *  │  │  └──────────────────────┬───────────────────────────────────┘ │  │
  *  │  │                         │                                     │  │
@@ -180,15 +180,18 @@
  * ├── src/
  * │   ├── configs/
  * │   │   ├── header.config.js       # Default HTTP headers for upstream requests
- * │   │   └── ids.config.js          # Genre / Type / Status numeric ID mappings
- * │   ├── controllers/               # 28 route handlers (one per endpoint)
+ * │   │   ├── ids.config.js          # Genre / Type / Status numeric ID mappings
+ * │   │   └── embedProviders.config.js # Direct embed provider registry (Megavid/AniXo/MegaPlay)
+ * │   ├── controllers/               # 30 route handlers (one per endpoint)
  * │   │   ├── homeInfo.controller.js
  * │   │   ├── animeInfo.controller.js
  * │   │   ├── search.controller.js
  * │   │   ├── episodeList.controller.js
+ * │   │   ├── episodeLatest.controller.js
  * │   │   ├── episodeListAjax.controller.js
  * │   │   ├── streamInfo.controller.js
  * │   │   ├── streamResolver.controller.js
+ * │   │   ├── embedProviders.controller.js
  * │   │   ├── schedule.controller.js
  * │   │   ├── spotlight.controller.js
  * │   │   ├── trending.controller.js
@@ -210,7 +213,7 @@
  * │   │   ├── recentlyUpdatedTabs.controller.js
  * │   │   ├── completedAnime.controller.js
  * │   │   └── category.controller.js
- * │   ├── extractors/                # 28 HTML scrapers (one per data source)
+ * │   ├── extractors/                # 29 HTML scrapers (one per data source)
  * │   │   ├── homeInfo.extractor.js
  *   │   │   ├── animeInfo.extractor.js
  *   │   │   ├── search.extractor.js
@@ -218,6 +221,7 @@
  *   │   │   ├── episodeListAjax.extractor.js
  *   │   │   ├── streamInfo.extractor.js
  *   │   │   ├── streamResolver.extractor.js
+ *   │   │   ├── embedProviders.extractor.js
  *   │   │   ├── schedule.extractor.js
  *   │   │   ├── spotlight.extractor.js
  *   │   │   ├── trending.extractor.js
@@ -308,7 +312,7 @@
  * └────────────────────────────────────────────────────────────────────────┘
  *
  * ┌────────────────────────────────────────────────────────────────────────┐
- * │  Extractors  (28 scrapers)                                            │
+ * │  Extractors  (29 scrapers)                                            │
  * ├────────────────────────────────────────────────────────────────────────┤
  * │  One extractor per data source on the target site. Responsibilities:  │
  * │  • Build the upstream URL (via mirror.helper)                         │
@@ -861,7 +865,8 @@
  *  │  Search & Filter            │  search, filter, azList, category     │
  *  │  Anime Detail               │  animeInfo, watchPage, status         │
  *  │  Episode & Stream           │  episodeList, episodeListAjax,        │
- *  │                             │  streamInfo, streamResolver, download │
+ *  │                             │  streamInfo, streamResolver, download,│
+ *  │                             │  embedProviders                       │
  *  │  Lists                      │  newRelease, trendingSidebar,         │
  *  │                             │  topAnimeRankings, recentlyUpdated,   │
  *  │                             │  completedAnime, upcomingAnime        │

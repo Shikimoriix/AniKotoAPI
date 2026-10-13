@@ -24,9 +24,11 @@ import { getHomeInfo } from "../controllers/homeInfo.controller.js";
 import { getAnimeInfo } from "../controllers/animeInfo.controller.js";
 import { getSearchResults, getSearchSuggestions } from "../controllers/search.controller.js";
 import { getEpisodeList } from "../controllers/episodeList.controller.js";
+import { getLatestEpisode } from "../controllers/episodeLatest.controller.js";
 import { getEpisodeListAjax } from "../controllers/episodeListAjax.controller.js";
 import { getStreamInfo, getServerList, getMapperServers } from "../controllers/streamInfo.controller.js";
 import { getResolvedStream, getStreamQualities } from "../controllers/streamResolver.controller.js";
+import { getEmbedProviders } from "../controllers/embedProviders.controller.js";
 import { getSchedule } from "../controllers/schedule.controller.js";
 import { getSpotlight } from "../controllers/spotlight.controller.js";
 import { getTrending } from "../controllers/trending.controller.js";
@@ -153,6 +155,15 @@ app.use((req, res, next) => {
   // EPISODES
   // ══════════════════════════════════════════════════════════════
 
+  // ---- FEATURE: Latest episode checker (literal path must precede :id) ----
+  app.get("/api/episodes/latest", async (req, res, next) => {
+    try {
+      await getLatestEpisode(req, res, next);
+    } catch (error) {
+      jsonError(res, error.message);
+    }
+  });
+
   // ---- FEATURE: Episode list for anime by ID ----
   app.get("/api/episodes/:id", async (req, res, next) => {
     try {
@@ -224,6 +235,15 @@ app.use((req, res, next) => {
   app.get("/api/stream/qualities", async (req, res, next) => {
     try {
       await getStreamQualities(req, res, next);
+    } catch (error) {
+      jsonError(res, error.message);
+    }
+  });
+
+  // ---- FEATURE: Direct embed providers (Megavid/AniXo/MegaPlay) ----
+  app.get("/api/stream/embeds", async (req, res, next) => {
+    try {
+      await getEmbedProviders(req, res, next);
     } catch (error) {
       jsonError(res, error.message);
     }
@@ -582,7 +602,7 @@ app.get("/api/stats", (req, res) => {
         ttl: "5 minutes",
         description: "Map-based cache with TTL expiration",
       },
-      endpoints: 38,
+      endpoints: 40,
       timestamp: new Date().toISOString(),
     },
   });
@@ -636,7 +656,8 @@ app.get("/api/openapi", (req, res) => {
     paths: {
       "/": { get: { summary: "Homepage data", tags: ["Home"] } },
       "/search": { get: { summary: "Search anime", tags: ["Search"] } },
-      "/info": { get: { summary: "Anime info", tags: ["Anime"] } },
+      "/info": { get: { summary: "Anime info (incl. externalIds: malId/anilistId)", tags: ["Anime"] } },
+      "/episodes/latest": { get: { summary: "Latest episode checker", tags: ["Episodes"] } },
       "/episodes/{id}": { get: { summary: "Episode list", tags: ["Episodes"] } },
       "/servers": { get: { summary: "Server list", tags: ["Streaming"] } },
       "/stream": { get: { summary: "Stream URL", tags: ["Streaming"] } },
@@ -660,6 +681,7 @@ app.get("/api/openapi", (req, res) => {
       "/watch": { get: { summary: "Watch page data", tags: ["Streaming"] } },
       "/stream/resolve": { get: { summary: "Resolve actual stream URL (m3u8/mp4)", tags: ["Streaming"] } },
       "/stream/qualities": { get: { summary: "Available quality options for M3U8 stream", tags: ["Streaming"] } },
+      "/stream/embeds": { get: { summary: "Direct embed provider URLs (Megavid/AniXo/MegaPlay)", tags: ["Streaming"] } },
       "/stream/proxy": { get: { summary: "M3U8 playlist proxy (rewrites URLs)", tags: ["Streaming"] } },
       "/stream/ts-proxy": { get: { summary: "TS video segment proxy", tags: ["Streaming"] } },
       "/search/suggest": { get: { summary: "Search suggestions", tags: ["Search"] } },

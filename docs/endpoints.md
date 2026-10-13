@@ -164,13 +164,15 @@ curl "https://anikototvapi.vercel.app/api/search?keyword=naruto"
 
 ## GET /info
 
-Get detailed info about an anime.
+Get detailed info about an anime. Includes `externalIds` (MAL/AniList IDs) that can be passed directly to `/stream/embeds`.
 
 | Param | Type | Required | Description |
 |-------|------|----------|-------------|
 | `id` | string | Yes | Anime slug with random hash (e.g., `naruto-shippuuden-movie-6-road-to-ninja-w2wqq`) |
 
 > **Important:** Slugs now include random hashes (e.g., `one-piece-odmau`). Get valid slugs from `/search` or `/most-popular` results.
+
+> **Note:** `externalIds` is resolved server-side (cached 60 min) and is best-effort — if ID resolution fails it comes back as `null` values, the rest of the response is unaffected.
 
 **Request:**
 
@@ -203,7 +205,12 @@ curl "https://anikototvapi.vercel.app/api/info?id=naruto-shippuuden-movie-6-road
     "producers": ["TV Tokyo", "Shueisha"],
     "genres": ["Action", "Comedy", "Supernatural"],
     "rating": "PG-13",
-    "reviewCount": "0"
+    "reviewCount": "0",
+    "externalIds": {
+      "animeId": 1642,
+      "malId": "21",
+      "anilistId": "21"
+    }
   }
 }
 ```
@@ -251,6 +258,46 @@ curl "https://anikototvapi.vercel.app/api/episodes/958"
 ```
 
 > **Important:** The `server_ids` field is needed to fetch servers. Pass it to the `/servers` endpoint.
+
+---
+
+## GET /episodes/latest
+
+Latest-episode checker — returns only the newest episode plus summary counts. Built for bots and notification jobs ("is there a new episode?") that shouldn't download the full episode list.
+
+| Param | Type | Required | Description |
+|-------|------|----------|-------------|
+| `slug` | string | Yes | Anime slug or animeId |
+
+**Request:**
+
+```bash
+curl "https://anikototvapi.vercel.app/api/episodes/latest?slug=one-piece-odmau"
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "results": {
+    "slug": "one-piece-odmau",
+    "animeId": 1642,
+    "totalEpisodes": 1165,
+    "latest": {
+      "episode_no": 1165,
+      "title": "",
+      "id": "50167",
+      "slug": "1165",
+      "href": "#",
+      "server_ids": "dXNCT3hNQzk3THhSTW8ySnM5...",
+      "mal_id": "21"
+    }
+  }
+}
+```
+
+> **Tip:** Poll this endpoint, compare `results.latest.episode_no` with your stored value, and call `/servers?ids=results.latest.server_ids` only when it changes. Responses are cached for 10 minutes.
 
 ---
 
@@ -835,6 +882,48 @@ Returns array of quality objects with url, quality label, resolution, bandwidth,
 
 ---
 
+## GET /stream/embeds
+
+Direct embed provider URLs (Megavid / AniXo / MegaPlay) — iframe-ready players that bypass Cloudflare entirely. Playback happens inside the provider's own iframe; no source-site AJAX scraping at watch time.
+
+| Param | Type | Required | Description |
+|-------|------|----------|-------------|
+| `slug` | string | One of* | Anime slug — MAL/AniList IDs resolved automatically |
+| `mal` | string | One of* | Direct MAL ID (skips slug lookup) |
+| `anilist` | string | One of* | Direct AniList ID (skips slug lookup) |
+| `ep` | number | No | Episode number (default 1) |
+| `lang` | string | No | `sub` or `dub` (default `sub`) |
+| `provider` | string | No | Comma-separated filter: `megaplay`, `anixo`, `megavid` |
+
+\* Provide at least one of `slug`, `mal`, or `anilist`.
+
+```bash
+curl "https://anikototvapi.vercel.app/api/stream/embeds?slug=one-piece-odmau&ep=1"
+curl "https://anikototvapi.vercel.app/api/stream/embeds?mal=21&ep=1&lang=dub&provider=megavid"
+```
+
+Returns resolved IDs plus iframe-ready URLs per provider:
+
+```json
+{
+  "success": true,
+  "results": {
+    "slug": "one-piece-odmau",
+    "episode": 1,
+    "lang": "sub",
+    "ids": { "animeId": 1642, "malId": "21", "anilistId": "21" },
+    "providers": [
+      { "id": "megaplay", "name": "MegaPlay", "url": "https://megaplay.buzz/stream/mal/21/1/sub", "iframeReady": true },
+      { "id": "anixo", "name": "AniXo", "url": "https://anixo.buzz/embed/ani/21/1/sub?color=%23e63946", "iframeReady": true },
+      { "id": "megavid", "name": "Megavid", "url": "https://megavid.buzz/mal/21/1/sub?color=%23e63946&autoplay=true", "iframeReady": true }
+    ],
+    "unavailable": []
+  }
+}
+```
+
+---
+
 ## GET /stream/proxy
 
 M3U8 playlist proxy — rewrites relative URLs to proxy endpoints for CORS-free playback.
@@ -924,7 +1013,7 @@ curl "https://anikototvapi.vercel.app/api/stats"
       "ttl": "5 minutes",
       "description": "Map-based cache with TTL expiration"
     },
-    "endpoints": 38,
+    "endpoints": 40,
     "timestamp": "2026-07-30T02:20:46.205Z"
   }
 }

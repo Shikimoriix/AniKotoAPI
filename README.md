@@ -23,7 +23,7 @@
   <img src="https://img.shields.io/badge/Vercel-Serverless-000000?style=flat-square&logo=vercel&logoColor=white" alt="Vercel"/>
   <img src="https://img.shields.io/badge/License-MIT-22c55e?style=flat-square&logo=mit&logoColor=white" alt="License"/>
   <img src="https://img.shields.io/badge/Version-2.4.1-f43f8e?style=flat-square&logoColor=white" alt="Version"/>
-  <img src="https://img.shields.io/badge/Endpoints-38-6366f1?style=flat-square&logoColor=white" alt="Endpoints"/>
+  <img src="https://img.shields.io/badge/Endpoints-40-6366f1?style=flat-square&logoColor=white" alt="Endpoints"/>
   <img src="https://img.shields.io/badge/Anime-10000+-a855f7?style=flat-square&logoColor=white" alt="Anime Database"/>
   <img src="https://img.shields.io/badge/Maintenance-Active-22c55e?style=flat-square&logo=github&logoColor=white" alt="Maintenance"/>
 </p>
@@ -88,7 +88,7 @@
 
 ### Why AniKotoAPI?
 
-- 🎬 **38 Endpoints** — Complete coverage of anikototv.to data
+- 🎬 **40 Endpoints** — Complete coverage of anikototv.to data
 - 🔍 **Full-Text Search** — Search anime by keyword with suggestions
 - 📺 **Episode Lists** — AJAX-loaded episode data with server info
 - 🎯 **Smart Filtering** — Genre, type, status, rating, sort, season, year
@@ -133,6 +133,8 @@ flowchart TD
 > **Streaming endpoints (`/api/servers`, `/api/stream`, `/api/stream/resolve`) return errors when anikototv.to blocks AJAX requests from server-side IPs.**
 >
 > This is expected behavior when scraping from datacenter IPs (including Vercel's). AniKoto's bot protection blocks non-browser requests to their AJAX endpoints. Metadata endpoints (home, search, info, trending, etc.) work perfectly — only streaming is affected.
+>
+> **✅ Alternative: `/api/stream/embeds` never touches AniKoto's AJAX layer** — it returns iframe-ready player URLs for Megavid/AniXo/MegaPlay built from MAL/AniList IDs, so playback works from any environment with zero Cloudflare friction.
 
 | What Works | What's Blocked |
 |:---|:---|
@@ -164,7 +166,8 @@ FLARESOLVERR_URL=http://your-flaresolverr-host:8191
 ### ⚡ Core
 - **Real-time scraping** from anikototv.to
 - **Smart caching** with LRU and configurable TTL per endpoint
-- **38 RESTful endpoints** covering all data
+- **40 RESTful endpoints** covering all data
+- **Direct embed providers** (Megavid/AniXo/MegaPlay) — Cloudflare-free iframe playback
 - **AJAX episode loading** for accurate data
 - **Mapper API integration** for extra servers
 - **Graceful error handling** per endpoint
@@ -215,7 +218,7 @@ FLARESOLVERR_URL=http://your-flaresolverr-host:8191
 
 | Feature | Description | Status |
 |:---|:---|:---:|
-| 🎬 38 API Endpoints | Complete coverage of anime data | ✅ |
+| 🎬 40 API Endpoints | Complete coverage of anime data | ✅ |
 | 🔍 Full-Text Search | Keyword search with pagination | ✅ |
 | 📺 Episode Lists | AJAX-loaded episode data | ✅ |
 | 🎯 Advanced Filtering | Genre, type, status, rating, sort, season | ✅ |
@@ -240,7 +243,7 @@ FLARESOLVERR_URL=http://your-flaresolverr-host:8191
 | **AniKoto** | `anikoto.cz` | ✅ Active | Mirror domain |
 | **AniKoto** | `anikoto.me` | ✅ Active | Mirror domain |
 | **AniKoto** | `anikoto.net` | ✅ Active | Mirror domain |
-| **AniKoto** | `anikoto.se` | ✅ Active | Mirror domain |
+| **AniKoto** | `anikototv.se` | ✅ Active | Mirror domain |
 
 ### Data Available
 
@@ -333,7 +336,7 @@ AniKotoAPI/
 │   │
 │   ├── 📂 docs/                          #    📚 API documentation
 │   │   ├── 📄 index.md                   #       Overview, quick start
-│   │   ├── 📄 endpoints.md               #       Full API reference (38 endpoints)
+│   │   ├── 📄 endpoints.md               #       Full API reference (40 endpoints)
 │   │   ├── 📄 streaming.md               #       Streaming flow guide + proxy
 │   │   ├── 📄 examples.md                #       Code examples (cURL, JS, Python)
 │   │   ├── 📄 architecture.md            #       Project structure, tech stack
@@ -344,32 +347,36 @@ AniKotoAPI/
 │   ├── 📂 configs/                       #    🔧 Configuration files
 │   │   ├── 📄 dataUrl.js                 #       🌐 URL patterns for anikototv.to
 │   │   ├── 📄 header.config.js           #       📋 Request headers
-│   │   └── 📄 ids.config.js              #       🏷️ Genre/Type/Status/Source/Season ID mappings
+│   │   ├── 📄 ids.config.js              #       🏷️ Genre/Type/Status/Source/Season ID mappings
+│   │   └── 📄 embedProviders.config.js   # 🆕 Direct embed provider registry (Megavid/AniXo/MegaPlay)
 │   │
-│   ├── 📂 controllers/                   #    🎮 Route handlers (28 files)
+│   ├── 📂 controllers/                   #    🎮 Route handlers (30 files)
 │   │   ├── 📄 homeInfo.controller.js
 │   │   ├── 📄 animeInfo.controller.js
 │   │   ├── 📄 search.controller.js
 │   │   ├── 📄 episodeList.controller.js
+│   │   ├── 📄 episodeLatest.controller.js # 🆕 Latest-episode checker (bots)
 │   │   ├── 📄 episodeListAjax.controller.js
 │   │   ├── 📄 streamInfo.controller.js
 │   │   ├── 📄 streamResolver.controller.js  # 🆕 Stream URL resolution + quality detection
+│   │   ├── 📄 embedProviders.controller.js  # 🆕 Direct embed provider URLs
 │   │   ├── 📄 filter.controller.js
 │   │   ├── 📄 watchPage.controller.js
-│   │   └── 📄 ... (15 more)
+│   │   └── 📄 ... (17 more)
 │   │
-│   ├── 📂 extractors/                    #    🔍 HTML scrapers (28 files)
+│   ├── 📂 extractors/                    #    🔍 HTML scrapers (29 files)
 │   │   ├── 📄 homeInfo.extractor.js      #       🏠 Home page data
 │   │   ├── 📄 search.extractor.js        #       🔍 Search results
 │   │   ├── 📄 animeInfo.extractor.js     #       📺 Anime details
 │   │   ├── 📄 streamInfo.extractor.js    #       📡 Streaming servers
 │   │   ├── 📄 streamResolver.extractor.js #      🔗 Stream URL resolution, M3U8 parser
+│   │   ├── 📄 embedProviders.extractor.js # 🆕 MAL/AniList ID resolution + embed URLs
 │   │   ├── 📄 filter.extractor.js        #       🎯 Filtered results
 │   │   ├── 📄 watchPage.extractor.js     #       ▶️ Watch page data
 │   │   ├── 📄 seasons.extractor.js       #       📅 Season info from watch page
 │   │   ├── 📄 watchOrder.extractor.js    #       📋 Watch order from sidebar
 │   │   ├── 📄 episodeList.extractor.js   #       📋 Episode lists
-│   │   └── 📄 ... (16 more)
+│   │   └── 📄 ... (17 more)
 │   │
 │   ├── 📂 helper/                        #    🛠️ Utility functions
 │   │   ├── 📄 cache.helper.js            #       💾 In-memory caching
@@ -384,7 +391,7 @@ AniKotoAPI/
 │   │   └── 📄 creatorInfo.js            #       ✍️ Creator attribution injection
 │   │
 │   └── 📂 routes/                        #    🛤️ Express routes
-│       ├── 📄 apiRoutes.js               #       🌐 Main API routes (38 endpoints)
+│       ├── 📄 apiRoutes.js               #       🌐 Main API routes (40 endpoints)
 │       └── 📄 category.route.js          #       🏷️ Category routes
 │
 ├── 📄 server.js                          # 🚀 Express server entry point
@@ -2344,6 +2351,7 @@ CMD ["node", "server.js"]
 
 | Version | Date | Key Changes |
 |:---|:---|:---|
+| **2.5.1** | 2026-10-13 | Domain sync vs official hub, spotlight carousel fix, direct embed providers (`/api/stream/embeds`), info `externalIds` + latest-episode checker, full docs pass, diagnostic sweep, Dockerfile Node 22 |
 | **2.4.1** | 2026-08-27 | Security: fixed SSRF in stream proxies, dotenv load order fix, SECURITY.md |
 | **2.2.0** | 2026-07-28 | Streaming resolver, M3U8/TS proxy, 5 new endpoints, bug fixes, full diagnostic sweep |
 | **1.7.2** | 2026-06-08 | Full rebrand AniKotoAPI → AniKotoAPI, docs folder with real data, streaming fix |
@@ -2457,7 +2465,7 @@ The API can access 10,000+ anime titles from anikototv.to. The most-popular endp
 
 ### ✅ Completed
 
-- [x] 🎬 38 API endpoints covering all data
+- [x] 🎬 40 API endpoints covering all data
 - [x] 🔍 Full-text search with pagination
 - [x] 📺 Episode lists via AJAX loading
 - [x] 🎯 Advanced filtering (genre, type, status, rating, sort, season, year)
@@ -2560,7 +2568,8 @@ git push origin feature/amazing-feature
 | [AniKoto CZ](https://anikoto.cz) | Mirror domain |
 | [AniKoto ME](https://anikoto.me) | Mirror domain |
 | [AniKoto NET](https://anikoto.net) | Mirror domain |
-| [AniKoto SE](https://anikoto.se) | Mirror domain |
+| [AniKoto SE](https://anikototv.se) | Mirror domain |
+| [AniKoto Hub](https://anikoto.site) | Official domain verification hub |
 
 ### 🛠️ Technologies
 

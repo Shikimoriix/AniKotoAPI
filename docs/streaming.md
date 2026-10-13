@@ -15,6 +15,8 @@ This document covers the complete streaming workflow for AniKotoAPI — from sea
 ## ⚠️ Streaming Status
 
 > **Streaming endpoints (`/api/servers`, `/api/stream`, `/api/stream/resolve`) return errors when anikototv.to blocks AJAX requests from server-side IPs.**
+>
+> **✅ Alternative: `/api/stream/embeds` never touches AniKoto's AJAX layer** — see [Direct Embed Providers](#direct-embed-providers).
 
 | What Works | What's Blocked |
 |:---|:---|
@@ -24,6 +26,7 @@ This document covers the complete streaming workflow for AniKotoAPI — from sea
 | Top 10, most popular, new release | `/api/mapper-servers` — gogoanime servers |
 | AZ list, random, genre list | All AJAX-dependent endpoints |
 | All HTML-scraped endpoints | |
+| **`/api/stream/embeds` — direct provider iframes** | |
 
 **To fix streaming**, set one of these environment variables:
 
@@ -35,17 +38,55 @@ SCRAPER_API_KEY=your_scraperapi_key
 FLARESOLVERR_URL=http://your-flaresolverr-host:8191
 ```
 
+Or use the Cloudflare-free embed providers below — no proxy needed.
+
+---
+
+## Direct Embed Providers
+
+`GET /api/stream/embeds` builds iframe-ready player URLs for three third-party providers. Playback happens inside the provider's own iframe, so nothing ever requests AniKoto's Cloudflare-protected AJAX endpoints at watch time.
+
+| Provider | URL pattern | Requires |
+|:---|:---|:---|
+| **MegaPlay** | `megaplay.buzz/stream/mal\|ani/{id}/{ep}/{lang}` | MAL or AniList ID |
+| **AniXo** | `anixo.buzz/embed/ani/{anilistId}/{ep}/{lang}` | AniList ID |
+| **Megavid** | `megavid.buzz/{mal\|ani}/{id}/{ep}/{lang}` | MAL or AniList ID |
+
+```bash
+# From an AniKoto slug (MAL/AniList IDs resolved automatically, cached 60min)
+curl ".../api/stream/embeds?slug=one-piece-odmau&ep=1"
+
+# From direct IDs — zero scraping, instant response
+curl ".../api/stream/embeds?mal=21&ep=1&lang=dub&provider=megavid,megaplay"
+```
+
+```json
+{
+  "results": {
+    "ids": { "animeId": 1642, "malId": "21", "anilistId": "21" },
+    "providers": [
+      { "id": "megaplay", "url": "https://megaplay.buzz/stream/mal/21/1/sub", "iframeReady": true },
+      { "id": "anixo", "url": "https://anixo.buzz/embed/ani/21/1/sub?color=%23e63946", "iframeReady": true },
+      { "id": "megavid", "url": "https://megavid.buzz/mal/21/1/sub?color=%23e63946&autoplay=true", "iframeReady": true }
+    ]
+  }
+}
+```
+
+Drop any `url` straight into an `<iframe allow="autoplay; fullscreen">` — all three are embed-only players (Megavid rejects bare curl with 403 by design; browsers load it fine).
+
 ---
 
 ## Table of Contents
 
 1. [Architecture Overview](#architecture-overview)
-2. [Streaming Workflow](#streaming-workflow)
-3. [Endpoint Reference](#endpoint-reference)
-4. [M3U8 Proxy](#m3u8-proxy)
-5. [Video Player Integration](#video-player-integration)
-6. [Error Handling](#error-handling)
-7. [Performance Tips](#performance-tips)
+2. [Direct Embed Providers](#direct-embed-providers)
+3. [Streaming Workflow](#streaming-workflow)
+4. [Endpoint Reference](#endpoint-reference)
+5. [M3U8 Proxy](#m3u8-proxy)
+6. [Video Player Integration](#video-player-integration)
+7. [Error Handling](#error-handling)
+8. [Performance Tips](#performance-tips)
 
 ---
 
