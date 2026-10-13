@@ -1,8 +1,8 @@
 /**
  * ============================================================================
  *  AniKotoAPI — Architecture Document
- *  Version : 2.4.1
- *  Generated: 2026-08-14
+ *  Version : 2.5.1
+ *  Generated: 2026-10-13
  * ============================================================================
  *
  *  Free REST API for scraping anime data from anikototv.to
@@ -301,7 +301,7 @@
  * └────────────────────────────────────────────────────────────────────────┘
  *
  * ┌────────────────────────────────────────────────────────────────────────┐
- * │  Controllers  (28 handlers)                                           │
+ * │  Controllers  (30 handlers)                                           │
  * ├────────────────────────────────────────────────────────────────────────┤
  * │  One controller per API endpoint. Responsibilities:                   │
  * │  • Extract and validate request parameters (query, params, body)      │
@@ -364,7 +364,7 @@
  * │  Routes                                                               │
  * ├────────────────────────────────────────────────────────────────────────┤
  * │  apiRoutes.js                                                         │
- * │    • Defines all 28 endpoint paths with HTTP methods                 │
+ * │    • Defines all 40 endpoint paths with HTTP methods                 │
  * │    • Maps paths to controller functions                                │
  * │    • Embeds OpenAPI 3.0 spec for auto-documentation                  │
  * │                                                                       │
@@ -782,7 +782,7 @@
  *  │  INTEGRATION TESTS (test.js)                                         │
  *  ├──────────────────────────────────────────────────────────────────────┤
  *  │                                                                      │
- *  │  • 35 end-to-end tests covering all 28+ endpoints.                 │
+ *  │  • 40 end-to-end tests covering all 40+ endpoints.                 │
  *  │  • Each test hits the live API and validates:                       │
  *  │    - HTTP status code (200, or expected error code)                 │
  *  │    - Response shape (success: true, data present)                   │
@@ -836,13 +836,14 @@
  *  │  VERSION HISTORY                                                     │
  *  ├──────────────────────────────────────────────────────────────────────┤
  *  │                                                                      │
- *  │  v2.4.1  (Current)                                                  │
- *  │    • 28 endpoints, 28 extractors                                    │
- *  │    • LRU cache with per-endpoint TTL                                │
+ *  │  v2.5.1  (Current)                                                  │
+ *  │    • 40 endpoints, 29 extractors, 30 controllers                    │
+ *  │    • Cache TTLs per endpoint + 60min MAL/AniList ID cache           │
  *  │    • 5-mirror failover system                                       │
  *  │    • Vercel serverless deployment                                   │
- *  │    • 35 integration tests                                           │
- *  │    • OpenAPI 3.0 spec embedded in apiRoutes.js                     │
+ *  │    • Direct embed providers (Megavid/AniXo/MegaPlay)                │
+ *  │    • 40 integration tests                                           │
+ *  │    • OpenAPI 3.0 spec embedded in apiRoutes.js                      │
  *  │                                                                      │
  *  └──────────────────────────────────────────────────────────────────────┘
  *
@@ -866,13 +867,13 @@
  *  │  Anime Detail               │  animeInfo, watchPage, status         │
  *  │  Episode & Stream           │  episodeList, episodeListAjax,        │
  *  │                             │  streamInfo, streamResolver, download,│
- *  │                             │  embedProviders                       │
+ *  │                             │  embedProviders, episodeLatest        │
  *  │  Lists                      │  newRelease, trendingSidebar,         │
  *  │                             │  topAnimeRankings, recentlyUpdated,   │
  *  │                             │  completedAnime, upcomingAnime        │
  *  │  Meta                       │  seasons, watchOrder                  │
  *  ├─────────────────────────────┼────────────────────────────────────────┤
- *  │  TOTAL                      │  28 endpoints                         │
+ *  │  TOTAL                      │  40 endpoints                         │
  *  └─────────────────────────────┴────────────────────────────────────────┘
  *
  *  ┌──────────────────────────────────────────────────────────────────────┐
